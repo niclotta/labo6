@@ -1,0 +1,11 @@
+.DS_Store
+latex/*.aux
+latex/*.blg
+latex/*.out
+latex/*.pdf
+latex/*.synctex.gz
+latex/*Notes.bib
+latex/*.bbl
+latex/*.log
+img/*
+resultados/*
