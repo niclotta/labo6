@@ -6,26 +6,23 @@ Created on Tue Aug 25 14:02:44 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-08 Tuesday 10:37:35 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-10 Thursday 12:07:58 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy  as np
-import pathlib
-import natsort
 
 from scipy.optimize import curve_fit
-from scipy.stats    import linregress
 
-conj_med = "03_09" #"27_08"
+# Setup variable
+
 lead_fct = "Fa0"
-geometry = "Prisma X" #"Disco"
-datasets = ["0g", "15g", "30g", "45g", "60g", "75g"] #["0g", "30g", "60g", "90g", "120g", "150g"]
-angulos  = [0, 15, 30, 45, 60, 75] #[0, 30, 60, 90, 120, 150]
+debug_graph = False
+angle_graph = False
 
-# Dataset, Archivo, H_max, M_r, H_c, H_c_err, M_s, W_F, W_r
-debug_graph  = False
+# Setup permanente
 
+geometrias = ["Prisma X", "Disco", "Prisma X vertical"]
 recorte_dsc = {
     "0g_$W^0_F$":   [8, 21],
     "30g_$W^0_F$":  [8, 25],
@@ -40,9 +37,18 @@ recorte_pmx = {
     "30g_$W^0_F$":  [8, 22],
     "45g_$W^0_F$":  [8, 24],
     "60g_$W^0_F$":  [8, 23],
-    "75g_$W^0_F$":  [12,30]
+    "75g_$W^0_F$":  [12,30],
+    "90g_$W^0_F$":  [13,34]
 }
-dict_recorte = recorte_pmx
+recorte_pmV = {
+#    "0g_$W^0_F$":   [8, 22],
+#    "15g_$W^0_F$":  [8, 22],
+#    "30g_$W^0_F$":  [8, 22],
+#    "45g_$W^0_F$":  [8, 24],
+#    "60g_$W^0_F$":  [8, 23],
+#    "75g_$W^0_F$":  [12,30],
+#    "90g_$W^0_F$":  [12,30]
+}
 
 def ajuste_ln_magnetizacion(W_ast, M_ast, M_rem, sigma, dataset, title):
     def lineal(a, b, x):
@@ -52,47 +58,67 @@ def ajuste_ln_magnetizacion(W_ast, M_ast, M_rem, sigma, dataset, title):
     start, stop = dict_recorte.get(f"{dataset}_{title}", [0,len(ln_W)]) #indices_rango_lineal(ln_M, ln_W)
     ln_W = ln_W[start:stop]
     ln_M = ln_M[start:stop]
-    popt, pcov = curve_fit(lineal, ln_M, ln_W)
+    W_ast_sliced = W_ast.to_numpy(dtype=float)[start:stop]
+    sigma_arr = sigma.to_numpy(dtype=float)[start:stop]
+    sigma_ln_W = sigma_arr / W_ast_sliced
+    popt, pcov = curve_fit(lineal, ln_M, ln_W, sigma=sigma_ln_W, absolute_sigma=True)
     ln_W_0, n = popt
     W_0 = np.exp(ln_W_0)
     ln_W_err, n_err = np.sqrt(np.diag(pcov))
     if debug_graph and title == "$W^0_F$":
         plt.scatter(ln_W, ln_M)
-        plt.title(rf"{title}")
+        plt.title(rf"{title}    {dataset.replace('g', '°')}")
         plt.show()
         plt.close()
     return W_0, W_0 * ln_W_err, n, n_err
 
 if __name__ == "__main__":
-    H_c_0_arr = []
-    dff = pd.read_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}_{conj_med}.csv")
-    minor_loops_df = dff[dff["Dataset"].isin(datasets)] #.sort_values(by="Dataset", key=natsort.natsort_keygen())
-    for dataset, group in minor_loops_df.groupby("Dataset", sort=False):
-        M_s    = group[group["Archivo"].str.contains("major")]['M_s'].values
-        M_rem  = group[group["Archivo"].str.contains("major")]['M_r'].values
-        M_r_er = group['M_r_err']
-        H_c_er = group['H_c_err']
-        W_F_er = group['W_F_err']
-        W_r_er = group['W_r_err']
-        M_max  = group['M_max']
-        M_r_st = group['M_r']
-        H_c_st = group['H_c']
-        W_F_st = group['W_F']
-        W_r_st = group['W_r']
+    for geometry in geometrias:
+        if geometry == "Disco":
+            datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
+            angulos  = [0, 30, 60, 90, 120, 150]
+            dict_recorte = recorte_dsc
+            conj_med = "27_08"
+        elif geometry == "Prisma X":
+            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+            angulos  = [0, 15, 30, 45, 60, 75, 90]
+            dict_recorte = recorte_pmx
+            conj_med = "03_09"
+        elif geometry == "Prisma X vertical":
+            datasets = ["0g", "15g", "30g", "45g", "60g", "90g"] # "75g",
+            angulos  = [0, 15, 30, 45, 60, 90] # 75,
+            dict_recorte = recorte_pmV
+            conj_med = "08_09"
+        H_c_0_arr = []
+        dff = pd.read_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}_{conj_med}.csv")
+        minor_loops_df = dff[dff["Dataset"].isin(datasets)]
+        for dataset, group in minor_loops_df.groupby("Dataset", sort=False):
+            M_s    = group[group["Archivo"].str.contains("major")]['M_s'].values
+            M_rem  = group[group["Archivo"].str.contains("major")]['M_r'].values
+            M_r_er = group['M_r_err']
+            H_c_er = group['H_c_err']
+            W_F_er = group['W_F_err']
+            W_r_er = group['W_r_err']
+            M_max  = group['M_max']
+            M_r_st = group['M_r']
+            H_c_st = group['H_c']
+            W_F_st = group['W_F']
+            W_r_st = group['W_r']
 
-        W_F_0, W_F_err, n_f, n_f_err = ajuste_ln_magnetizacion(W_F_st, M_max,  M_s,   W_F_er, dataset, "$W^0_F$")
-        W_r_0, W_r_err, n_r, n_r_err = ajuste_ln_magnetizacion(W_r_st, M_r_st, M_rem, W_r_er, dataset, "$W^0_r$")
-        H_c_0, H_0_err, n_c, n_c_err = ajuste_ln_magnetizacion(H_c_st, M_r_st, M_rem, H_c_er, dataset, "$H^0_c$")
-        H_c_0_arr.append(H_c_0)
-        print(f"========== {dataset} ==========")
-        print(f"{dataset}: $W^0_F = ({W_F_0:.3f}\\pm{W_F_err:.3f})$ [ergs/g], $n_f=({n_f:.3f}\\pm{n_f_err:.3f})$")
-        print(f"{dataset}: $W^0_r = ({W_r_0:.3f}\\pm{W_r_err:.3f})$ [ergs/g], $n_r=({n_r:.3f}\\pm{n_r_err:.3f})$")
-        print(f"{dataset}: $H^0_c = ({H_c_0:.3f}\\pm{H_0_err:.3f})$ [Oe], $n_c = ({n_c:.3f}\\pm{n_c_err:.3f})$")
+            W_F_0, W_F_er, n_f, n_f_er = ajuste_ln_magnetizacion(W_F_st, M_max,  M_s,   W_F_er, dataset, "$W^0_F$")
+            W_r_0, W_r_er, n_r, n_r_er = ajuste_ln_magnetizacion(W_r_st, M_r_st, M_rem, W_r_er, dataset, "$W^0_r$")
+            H_c_0, H_0_er, n_c, n_c_er = ajuste_ln_magnetizacion(H_c_st, M_r_st, M_rem, H_c_er, dataset, "$H^0_c$")
+            H_c_0_arr.append(H_c_0)
+            print(f"========== {geometry}: {dataset} ==========")
+            print(f"$W^0_F = ({W_F_0:.3f}\\pm{W_F_er:.3f})$ [ergs/g], $n_f=({n_f:.3f}\\pm{n_f_er:.3f})$")
+            print(f"$W^0_r = ({W_r_0:.3f}\\pm{W_r_er:.3f})$ [ergs/g], $n_r=({n_r:.3f}\\pm{n_r_er:.3f})$")
+            print(f"$H^0_c = ({H_c_0:.3f}\\pm{H_0_er:.3f})$ [Oe],     $n_c=({n_c:.3f}\\pm{n_c_er:.3f})$")
 
-    if debug_graph:
-        plt.plot(angulos, H_c_0_arr)
-        plt.xlabel(r"Grados", fontsize=14)
-        plt.ylabel(r'$H^0_c$ [Oe]', fontsize=14)
-        plt.show()
-        plt.close()
+        if debug_graph or angle_graph:
+            plt.plot(angulos, H_c_0_arr, marker="s", linestyle='--')
+            plt.title(geometry)
+            plt.xlabel(r"Angulo [°]", fontsize=14)
+            plt.ylabel(r'$H^0_c$ [Oe]', fontsize=14)
+            plt.show()
+            plt.close()
 # eof
