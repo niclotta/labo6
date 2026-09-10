@@ -6,13 +6,14 @@ Created on Thu Sep 10 11:43:02 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-09-10 Thursday 15:25:46 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-09-10 Thursday 15:52:42 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy  as np
 import pathlib
 import natsort
+import math
 
 from scipy.optimize import curve_fit
 from scipy.stats    import linregress
@@ -37,6 +38,14 @@ sample_g = False
 geometrias = ["Prisma X", "Disco", "Prisma X vertical"]
 colnames = ["Iteration", "Segment", "Field", "Moment", "Time Stamp", "Field Status", "Moment Status", "Invalid"]
 
+def cifras(val, err):
+    if err == 0:
+        decimals = 0
+    else:
+        exp = math.floor(math.log10(abs(err)))
+        decimals = max(0, 1 - exp)
+    return f"{val:.{decimals}f}"
+
 def indices_rango_lineal_centered(H, window_size=100):
     idx_zero_crossing = np.argmin(np.abs(H))
     half_window = window_size // 2
@@ -60,11 +69,11 @@ def ajuste_N_d_demagnetizacion(H, M, geometry, sigma, dataset):
     start, stop = indices_rango_lineal_field(H)
     H_rec = H[start:stop]
     M_rec = M[start:stop]
-    print(f"{start},{stop}")
+
     popt, pcov = curve_fit(lineal, H_rec, M_rec, sigma=sigma[start:stop])
     N_d = 1/popt[0]
     N_d_err = (N_d ** 2) * np.sqrt(np.diag(pcov))[0]
-    print(f"${datasets[i].replace('g', '^\\circ')}\\to N_d=({N_d}\\pm{N_d_err})$")
+
     if sample_g:
         plt.scatter(H, M)
         plt.scatter(H_rec, M_rec, zorder=5)
@@ -124,6 +133,7 @@ for geometry in geometrias:
             N_d, N_d_err = ajuste_N_d_demagnetizacion(H_dec, M_dec, geometry, M_dec_err, datasets[i])
             N_d_e.append(N_d_err)
             N_d_a.append(N_d)
+            print(f"${datasets[i].replace('g', '^\\circ')}\\to N_d=({cifras(N_d, N_d_err)}\\pm{N_d_err:.2g})$")
 
     plt.errorbar(angulos, N_d_a, yerr=N_d_e, marker="v", mfc='black', mec='black',
                      color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)

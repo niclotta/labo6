@@ -6,11 +6,12 @@ Created on Tue Aug 25 14:02:44 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-10 Thursday 12:07:58 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-10 Thursday 15:54:05 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy  as np
+import math
 
 from scipy.optimize import curve_fit
 
@@ -49,6 +50,14 @@ recorte_pmV = {
 #    "75g_$W^0_F$":  [12,30],
 #    "90g_$W^0_F$":  [12,30]
 }
+
+def cifras(val, err):
+    if err == 0:
+        decimals = 0
+    else:
+        exp = math.floor(math.log10(abs(err)))
+        decimals = max(0, 1 - exp)
+    return f"{val:.{decimals}f}"
 
 def ajuste_ln_magnetizacion(W_ast, M_ast, M_rem, sigma, dataset, title):
     def lineal(a, b, x):
@@ -110,9 +119,12 @@ if __name__ == "__main__":
             H_c_0, H_0_er, n_c, n_c_er = ajuste_ln_magnetizacion(H_c_st, M_r_st, M_rem, H_c_er, dataset, "$H^0_c$")
             H_c_0_arr.append(H_c_0)
             print(f"========== {geometry}: {dataset} ==========")
-            print(f"$W^0_F = ({W_F_0:.3f}\\pm{W_F_er:.3f})$ [ergs/g], $n_f=({n_f:.3f}\\pm{n_f_er:.3f})$")
-            print(f"$W^0_r = ({W_r_0:.3f}\\pm{W_r_er:.3f})$ [ergs/g], $n_r=({n_r:.3f}\\pm{n_r_er:.3f})$")
-            print(f"$H^0_c = ({H_c_0:.3f}\\pm{H_0_er:.3f})$ [Oe],     $n_c=({n_c:.3f}\\pm{n_c_er:.3f})$")
+            print(f"$W^0_F = ({cifras(W_F_0, W_F_er)}\\pm{W_F_er:.3f})$ [ergs/g]")
+            print(f"$n_f=({cifras(n_f, n_f_er)}\\pm{n_f_er:.2g})$")
+            print(f"$W^0_r = ({cifras(W_r_0, W_r_er)}\\pm{W_r_er:.3f})$ [ergs/g]")
+            print(f"$n_r=({cifras(n_r, n_r_er)}\\pm{n_r_er:.2g})$")
+            print(f"$H^0_c = ({cifras(H_c_0, H_0_er)}\\pm{H_0_er:.3f})$ [Oe]")
+            print(f"$n_c=({cifras(n_c, n_c_er)}\\pm{n_c_er:.2g})$")
 
         if debug_graph or angle_graph:
             plt.plot(angulos, H_c_0_arr, marker="s", linestyle='--')
