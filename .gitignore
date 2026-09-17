@@ -9,3 +9,4 @@ latex/*.bbl
 latex/*.log
 img/*
 resultados/*
+__pycache__/*

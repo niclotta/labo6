@@ -6,7 +6,7 @@ Created on Mon Aug 24 22:43:47 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-09-10 Thursday 11:54:26 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-09-17 Thursday 16:50:50 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -25,11 +25,11 @@ err_masa = 0.0001
 # Setup variable
 
 lead_fct = "Fa0"
-sample_g = False
+sample_g = True
 
 # Setup permanente
 
-geometrias = ["Prisma X", "Disco", "Prisma X vertical"]
+geometrias = ["Prisma X", "Prisma X vertical", "Disco", "Disco horizontal"]
 colnames = ["Iteration", "Segment", "Field", "Moment", "Time Stamp", "Field Status", "Moment Status", "Invalid"]
 marker_dsc = {
     "0g":   "^",
@@ -162,6 +162,12 @@ for geometry in geometrias:
         filename = ["minor_1er_*Hysteresis*.csv", "major_1er_*Hysteresis*.csv"]
         datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
         conj_med = "27_08"
+        masa = masa_dsc
+    if geometry == "Disco horizontal":
+        major_head = 85
+        filename = ["minor_*Hysteresis*", "major_*Segment*"]
+        datasets = ["0g", "30g", "60g", "90g", "120g"]
+        conj_med = "17_09"
         masa = masa_dsc
     elif geometry == "Prisma X":
         dict_marker = marker_pmx

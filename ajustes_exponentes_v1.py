@@ -6,7 +6,7 @@ Created on Tue Aug 25 14:02:44 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-10 Thursday 15:54:05 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-17 Thursday 16:49:02 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -23,8 +23,16 @@ angle_graph = False
 
 # Setup permanente
 
-geometrias = ["Prisma X", "Disco", "Prisma X vertical"]
+geometrias = ["Prisma X", "Prisma X vertical", "Disco", "Disco horizontal"]
 recorte_dsc = {
+    "0g_$W^0_F$":   [8, 21],
+    "30g_$W^0_F$":  [8, 25],
+    "60g_$W^0_F$":  [10,18],
+    "90g_$W^0_F$":  [22,30],
+    "120g_$W^0_F$": [8, 33],
+    "150g_$W^0_F$": [7, 24]
+}
+recorte_dsH = {
     "0g_$W^0_F$":   [8, 21],
     "30g_$W^0_F$":  [8, 25],
     "60g_$W^0_F$":  [10,18],
@@ -75,7 +83,7 @@ def ajuste_ln_magnetizacion(W_ast, M_ast, M_rem, sigma, dataset, title):
     W_0 = np.exp(ln_W_0)
     ln_W_err, n_err = np.sqrt(np.diag(pcov))
     if debug_graph and title == "$W^0_F$":
-        plt.scatter(ln_W, ln_M)
+        plt.scatter(ln_M, ln_W)
         plt.title(rf"{title}    {dataset.replace('g', '°')}")
         plt.show()
         plt.close()
@@ -88,6 +96,12 @@ if __name__ == "__main__":
             angulos  = [0, 30, 60, 90, 120, 150]
             dict_recorte = recorte_dsc
             conj_med = "27_08"
+        if geometry == "Disco horizontal":
+            major_head = 85
+            datasets = ["0g", "30g", "60g", "90g", "120g"]
+            angulos  = [0, 30, 60, 90, 120]
+            dict_recorte = recorte_dsH
+            conj_med = "17_09"
         elif geometry == "Prisma X":
             datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
             angulos  = [0, 15, 30, 45, 60, 75, 90]
