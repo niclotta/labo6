@@ -6,7 +6,7 @@ Created on Mon Aug 24 22:43:47 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-09-17 Thursday 16:50:50 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-09-20 Sunday 11:42:48 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -106,7 +106,7 @@ def magnetizacion_archivo(q, geometry, major_loop=False):
             H_sat_indices = np.where(H_raw > 0.95 * np.max(H_raw))
             _, cruce = np.polyfit(H_raw[H_sat_indices], M_raw[H_sat_indices], 1)
             M_s = abs(cruce)
-            if datasets[i] != "0g":
+            if datasets[i] != "0g" and geometry == "Disco":
                 M_s = M_raw[idx_max_after_min - 1]
             if sample_g:
                 plt.scatter(np.max(H_raw), M_s, marker='d', color='g',

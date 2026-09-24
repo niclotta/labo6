@@ -6,7 +6,7 @@ Created on Thu Sep 10 11:43:02 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-09-17 Thursday 16:47:11 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-09-20 Sunday 11:46:09 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -145,7 +145,7 @@ for geometry in geometrias:
             _, cruce = np.polyfit(H_raw[sat_indices], M_raw[sat_indices], 1)
             M_s = abs(cruce)
             # ver si sobreescribirlo asi vale la pena
-            if datasets[i] != "0g":
+            if datasets[i] != "0g" and geometry == "Disco":
                 M_s = M_raw[idx_max_after_min - 1]
 
             N_d, N_d_err = ajuste_N_d_demagnetizacion(H_dec, M_dec, geometry, M_dec_err, datasets[i])
@@ -154,8 +154,8 @@ for geometry in geometrias:
             N_d_a.append(N_d)
 
             M_pos, H_pos = M_dec[H_dec > 0], H_dec[H_dec > 0]
-            cut_idx = np.unique(((1 - (1 - np.linspace(0, 1, 20))**1.25) * (len(M_pos) - 1)).astype(int))
-            #cut_idx = np.linspace(0, len(M_pos) - 1, 17, dtype=int)
+            target_lambdas = [0.01, 0.03, 0.06, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+            cut_idx = [np.abs(M_pos/M_s - target).argmin() for target in target_lambdas]
             H_cut, M_cut = H_pos[cut_idx], M_pos[cut_idx]
 
             W_e_a = []
