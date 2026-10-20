@@ -6,7 +6,7 @@ Created on Tue Aug 25 14:02:44 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-09-17 Thursday 16:49:02 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-10-15 Thursday 14:44:27 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,47 +17,13 @@ from scipy.optimize import curve_fit
 
 # Setup variable
 
-lead_fct = "Fa0"
 debug_graph = False
-angle_graph = False
+angle_graph = True
 
 # Setup permanente
 
-geometrias = ["Prisma X", "Prisma X vertical", "Disco", "Disco horizontal"]
-recorte_dsc = {
-    "0g_$W^0_F$":   [8, 21],
-    "30g_$W^0_F$":  [8, 25],
-    "60g_$W^0_F$":  [10,18],
-    "90g_$W^0_F$":  [22,30],
-    "120g_$W^0_F$": [8, 33],
-    "150g_$W^0_F$": [7, 24]
-}
-recorte_dsH = {
-    "0g_$W^0_F$":   [8, 21],
-    "30g_$W^0_F$":  [8, 25],
-    "60g_$W^0_F$":  [10,18],
-    "90g_$W^0_F$":  [22,30],
-    "120g_$W^0_F$": [8, 33],
-    "150g_$W^0_F$": [7, 24]
-}
-recorte_pmx = {
-    "0g_$W^0_F$":   [8, 22],
-    "15g_$W^0_F$":  [8, 22],
-    "30g_$W^0_F$":  [8, 22],
-    "45g_$W^0_F$":  [8, 24],
-    "60g_$W^0_F$":  [8, 23],
-    "75g_$W^0_F$":  [12,30],
-    "90g_$W^0_F$":  [13,34]
-}
-recorte_pmV = {
-#    "0g_$W^0_F$":   [8, 22],
-#    "15g_$W^0_F$":  [8, 22],
-#    "30g_$W^0_F$":  [8, 22],
-#    "45g_$W^0_F$":  [8, 24],
-#    "60g_$W^0_F$":  [8, 23],
-#    "75g_$W^0_F$":  [12,30],
-#    "90g_$W^0_F$":  [12,30]
-}
+lead_factors = ["Fa0", "Fa93", "Fa186"]
+geometrias = ["Prisma X", "Prisma X vertical", "Cubo", "Disco", "Disco horizontal", "Polvo"]
 
 def cifras(val, err):
     if err == 0:
@@ -90,61 +56,210 @@ def ajuste_ln_magnetizacion(W_ast, M_ast, M_rem, sigma, dataset, title):
     return W_0, W_0 * ln_W_err, n, n_err
 
 if __name__ == "__main__":
-    for geometry in geometrias:
-        if geometry == "Disco":
-            datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
-            angulos  = [0, 30, 60, 90, 120, 150]
-            dict_recorte = recorte_dsc
-            conj_med = "27_08"
-        if geometry == "Disco horizontal":
-            major_head = 85
-            datasets = ["0g", "30g", "60g", "90g", "120g"]
-            angulos  = [0, 30, 60, 90, 120]
-            dict_recorte = recorte_dsH
-            conj_med = "17_09"
-        elif geometry == "Prisma X":
-            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
-            angulos  = [0, 15, 30, 45, 60, 75, 90]
-            dict_recorte = recorte_pmx
-            conj_med = "03_09"
-        elif geometry == "Prisma X vertical":
-            datasets = ["0g", "15g", "30g", "45g", "60g", "90g"] # "75g",
-            angulos  = [0, 15, 30, 45, 60, 90] # 75,
-            dict_recorte = recorte_pmV
-            conj_med = "08_09"
-        H_c_0_arr = []
-        dff = pd.read_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}_{conj_med}.csv")
-        minor_loops_df = dff[dff["Dataset"].isin(datasets)]
-        for dataset, group in minor_loops_df.groupby("Dataset", sort=False):
-            M_s    = group[group["Archivo"].str.contains("major")]['M_s'].values
-            M_rem  = group[group["Archivo"].str.contains("major")]['M_r'].values
-            M_r_er = group['M_r_err']
-            H_c_er = group['H_c_err']
-            W_F_er = group['W_F_err']
-            W_r_er = group['W_r_err']
-            M_max  = group['M_max']
-            M_r_st = group['M_r']
-            H_c_st = group['H_c']
-            W_F_st = group['W_F']
-            W_r_st = group['W_r']
+    for lead_fct in lead_factors:
+        if lead_fct == "Fa0":
+            recorte_dsc = {
+                "0g_$W^0_F$":   [8, 21],
+                "30g_$W^0_F$":  [8, 25],
+                "60g_$W^0_F$":  [10,18],
+                "90g_$W^0_F$":  [22,30],
+                "120g_$W^0_F$": [8, 33],
+                "150g_$W^0_F$": [7, 24]
+            }
+            recorte_dsH = {
+                "0g_$W^0_F$":   [8, 21],
+                "30g_$W^0_F$":  [8, 21],
+                "60g_$W^0_F$":  [8 ,21],
+                "90g_$W^0_F$":  [8 ,21],
+                "120g_$W^0_F$": [8, 21],
+                "150g_$W^0_F$": [8, 21]
+            }
+            recorte_pmx = {
+                "0g_$W^0_F$":   [8, 22],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [13,34]
+            }
+            recorte_pmV = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [12,30]
+            }
+            recorte_plv = {
+                "30g_$W^0_F$":  [8, 18],
+                "90g_$W^0_F$":  [8, 18]
+            }
+            recorte_cbo = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23]
+            }
+        elif lead_fct == "Fa93":
+            recorte_dsc = {
+                "0g_$W^0_F$":   [7, 17],
+                "30g_$W^0_F$":  [7, 19],
+                "60g_$W^0_F$":  [7, 19],
+                "90g_$W^0_F$":  [12,30],
+                "120g_$W^0_F$": [7, 22],
+                "150g_$W^0_F$": [7, 17]
+            }
+            recorte_dsH = {
+                "0g_$W^0_F$":   [8, 21],
+                "30g_$W^0_F$":  [8, 21],
+                "60g_$W^0_F$":  [8 ,21],
+                "90g_$W^0_F$":  [8 ,21],
+                "120g_$W^0_F$": [8, 21],
+                "150g_$W^0_F$": [8, 21]
+            }
+            recorte_pmx = {
+                "0g_$W^0_F$":   [8, 22],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [13,34]
+            }
+            recorte_pmV = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [12,30]
+            }
+            recorte_plv = {
+                "30g_$W^0_F$":  [8, 18],
+                "90g_$W^0_F$":  [8, 18]
+            }
+            recorte_cbo = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23]
+            }
+        elif lead_fct == "Fa186":
+            recorte_dsc = {
+                "0g_$W^0_F$":   [8, 21],
+                "30g_$W^0_F$":  [8, 25],
+                "60g_$W^0_F$":  [10,18],
+                "90g_$W^0_F$":  [22,30],
+                "120g_$W^0_F$": [8, 33],
+                "150g_$W^0_F$": [7, 24]
+            }
+            recorte_dsH = {
+                "0g_$W^0_F$":   [8, 21],
+                "30g_$W^0_F$":  [8, 21],
+                "60g_$W^0_F$":  [8 ,21],
+                "90g_$W^0_F$":  [8 ,21],
+                "120g_$W^0_F$": [8, 21],
+                "150g_$W^0_F$": [8, 21]
+            }
+            recorte_pmx = {
+                "0g_$W^0_F$":   [8, 22],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [13,34]
+            }
+            recorte_pmV = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23],
+                "75g_$W^0_F$":  [12,30],
+                "90g_$W^0_F$":  [12,30]
+            }
+            recorte_plv = {
+                "30g_$W^0_F$":  [8, 18],
+                "90g_$W^0_F$":  [8, 18]
+            }
+            recorte_cbo = {
+                "0g_$W^0_F$":   [8, 20],
+                "15g_$W^0_F$":  [8, 22],
+                "30g_$W^0_F$":  [8, 22],
+                "45g_$W^0_F$":  [8, 24],
+                "60g_$W^0_F$":  [8, 23]
+            }
 
-            W_F_0, W_F_er, n_f, n_f_er = ajuste_ln_magnetizacion(W_F_st, M_max,  M_s,   W_F_er, dataset, "$W^0_F$")
-            W_r_0, W_r_er, n_r, n_r_er = ajuste_ln_magnetizacion(W_r_st, M_r_st, M_rem, W_r_er, dataset, "$W^0_r$")
-            H_c_0, H_0_er, n_c, n_c_er = ajuste_ln_magnetizacion(H_c_st, M_r_st, M_rem, H_c_er, dataset, "$H^0_c$")
-            H_c_0_arr.append(H_c_0)
-            print(f"========== {geometry}: {dataset} ==========")
-            print(f"$W^0_F = ({cifras(W_F_0, W_F_er)}\\pm{W_F_er:.3f})$ [ergs/g]")
-            print(f"$n_f=({cifras(n_f, n_f_er)}\\pm{n_f_er:.2g})$")
-            print(f"$W^0_r = ({cifras(W_r_0, W_r_er)}\\pm{W_r_er:.3f})$ [ergs/g]")
-            print(f"$n_r=({cifras(n_r, n_r_er)}\\pm{n_r_er:.2g})$")
-            print(f"$H^0_c = ({cifras(H_c_0, H_0_er)}\\pm{H_0_er:.3f})$ [Oe]")
-            print(f"$n_c=({cifras(n_c, n_c_er)}\\pm{n_c_er:.2g})$")
+        for geometry in geometrias:
+            if geometry == "Disco":
+                datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
+                angulos  = [0, 30, 60, 90, 120, 150]
+                dict_recorte = recorte_dsc
+            if geometry == "Disco horizontal":
+                major_head = 85
+                datasets = ["0g", "30g", "60g", "90g", "120g"]
+                angulos  = [0, 30, 60, 90, 120]
+                dict_recorte = recorte_dsH
+            elif geometry == "Prisma X":
+                datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+                angulos  = [0, 15, 30, 45, 60, 75, 90]
+                dict_recorte = recorte_pmx
+            elif geometry == "Prisma X vertical":
+                datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+                angulos  = [0, 15, 30, 45, 60, 75, 90]
+                dict_recorte = recorte_pmV
+            elif geometry == "Polvo":
+                datasets = ["30g", "90g"]
+                angulos  = [30, 90]
+                dict_recorte = recorte_plv
+            elif geometry == "Cubo":
+                datasets = ["0g", "15g", "30g", "45g", "60g"]
+                angulos  = [0, 15, 30, 45, 60]
+                dict_recorte = recorte_cbo
+            H_c_0_arr = []
+            H_c_0_err = []
+            try:
+                dff = pd.read_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}.csv")
+            except FileNotFoundError:
+                continue
+            minor_loops_df = dff[dff["Dataset"].isin(datasets)]
+            for dataset, group in minor_loops_df.groupby("Dataset", sort=False):
+                M_s    = group[group["Archivo"].str.contains("major")]['M_s'].values
+                M_rem  = group[group["Archivo"].str.contains("major")]['M_r'].values
+                M_r_er = group['M_r_err']
+                H_c_er = group['H_c_err']
+                W_F_er = group['W_F_err']
+                W_r_er = group['W_r_err']
+                M_max  = group['M_max']
+                M_r_st = group['M_r']
+                H_c_st = group['H_c']
+                W_F_st = group['W_F']
+                W_r_st = group['W_r']
 
-        if debug_graph or angle_graph:
-            plt.plot(angulos, H_c_0_arr, marker="s", linestyle='--')
-            plt.title(geometry)
-            plt.xlabel(r"Angulo [°]", fontsize=14)
-            plt.ylabel(r'$H^0_c$ [Oe]', fontsize=14)
-            plt.show()
-            plt.close()
+                W_F_0, W_F_er, n_f, n_f_er = ajuste_ln_magnetizacion(W_F_st, M_max,  M_s,   W_F_er, dataset, "$W^0_F$")
+                W_r_0, W_r_er, n_r, n_r_er = ajuste_ln_magnetizacion(W_r_st, M_r_st, M_rem, W_r_er, dataset, "$W^0_r$")
+                H_c_0, H_0_er, n_c, n_c_er = ajuste_ln_magnetizacion(H_c_st, M_r_st, M_rem, H_c_er, dataset, "$H^0_c$")
+                H_c_0_arr.append(H_c_0)
+                H_c_0_err.append(H_0_er)
+                print(f"========== {geometry} {lead_fct}: {dataset} ==========")
+                print(f"$W^0_F = ({cifras(W_F_0, W_F_er)}\\pm{W_F_er:.3f})$ [ergs/g]")
+                print(f"$n_f=({cifras(n_f, n_f_er)}\\pm{n_f_er:.2g})$")
+                print(f"$W^0_r = ({cifras(W_r_0, W_r_er)}\\pm{W_r_er:.3f})$ [ergs/g]")
+                print(f"$n_r=({cifras(n_r, n_r_er)}\\pm{n_r_er:.2g})$")
+                print(f"$H^0_c = ({cifras(H_c_0, H_0_er)}\\pm{H_0_er:.3f})$ [Oe]")
+                print(f"$n_c=({cifras(n_c, n_c_er)}\\pm{n_c_er:.2g})$")
+
+            if debug_graph or angle_graph:
+                plt.errorbar(angulos, H_c_0_arr, yerr=H_c_0_err, marker="v", mfc='black', mec='black',
+                     color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)
+                plt.xlabel(r"Angulo [°]", fontsize=14)
+                plt.ylabel(r'$H^0_c$ [Oe]', fontsize=14)
+                plt.savefig(f"./img/{lead_fct}/{geometry}/H0_c_angulo_minors_{geometry}.png", dpi=300)
+                plt.close()
 # eof

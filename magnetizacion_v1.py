@@ -6,7 +6,7 @@ Created on Mon Aug 24 22:43:47 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-09-20 Sunday 11:42:48 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v1.py, 2026-10-15 Thursday 13:59:57 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -16,28 +16,29 @@ import natsort
 
 # Datos
 
-masa_dsc = 0.0075 # gramos
-masa_pmx = 0.0348 # gramos
-
 err_mqna = 0.001
 err_masa = 0.0001
 
 # Setup variable
 
-lead_fct = "Fa0"
 sample_g = True
+major_gr = True
 
 # Setup permanente
 
-geometrias = ["Prisma X", "Prisma X vertical", "Disco", "Disco horizontal"]
+lead_factors = ["Fa0", "Fa93", "Fa186"]
+filename = ["minor_*Hysteresis*", "major_*Segment*"]
+geometrias = ["Prisma X", "Prisma X vertical", "Cubo", "Disco", "Disco horizontal", "Polvo"]
 colnames = ["Iteration", "Segment", "Field", "Moment", "Time Stamp", "Field Status", "Moment Status", "Invalid"]
+
 marker_dsc = {
     "0g":   "^",
     "30g":  "d",
     "60g":  "s",
     "90g":  "P",
     "120g": "p",
-    "150g": "*"
+    "150g": "*",
+    "180g": "h",
 }
 marker_pmx = {
     "0g":   "^",
@@ -46,9 +47,9 @@ marker_pmx = {
     "45g":  "P",
     "60g":  "p",
     "75g":  "*",
-    "90g":  "h"
+    "90g":  "h",
 }
-colores = {
+colores_verde = {
     "^": "#4dcb77",
     "d": "#37bd63",
     "s": "#30a657",
@@ -56,7 +57,25 @@ colores = {
     "p": "#22763e",
     "*": "#1c6234",
     "h": "#164f29",
-}   
+}
+colores_azules = {
+    "^": "#38bdf8",
+    "d": "#0ea5e9",
+    "s": "#0284c7",
+    "P": "#0369a1",
+    "p": "#075985",
+    "*": "#0c4a6e",
+    "h": "#082f49",
+}
+colores_violeta = {
+    "^": "#c084fc",
+    "d": "#a855f7",
+    "s": "#9333ea",
+    "P": "#7e22ce",
+    "p": "#6b21a8",
+    "*": "#581c87",
+    "h": "#3b0764",
+}
 
 def magnetizacion_archivo(q, geometry, major_loop=False):
         df = pd.read_csv(q, header=major_head if major_loop else 49, names=colnames)
@@ -98,20 +117,23 @@ def magnetizacion_archivo(q, geometry, major_loop=False):
         W_r = 0.5 * H_c * M_r
         W_r_err = np.sqrt(0.25 * (H_c**2 * M_r_err**2 + M_r**2 * H_c_err**2))
 
-        if sample_g:
+        if sample_g or (major_gr and major_loop):
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
 
         M_s = np.nan
         if major_loop:
-            H_sat_indices = np.where(H_raw > 0.95 * np.max(H_raw))
+            H_sat_indices = np.where(H_raw > 0.93 * np.max(H_raw))
             _, cruce = np.polyfit(H_raw[H_sat_indices], M_raw[H_sat_indices], 1)
             M_s = abs(cruce)
-            if datasets[i] != "0g" and geometry == "Disco":
+            if ((datasets[i] != "0g" and "Disco" in geometry)
+                    or "Cubo" in geometry
+                    or "Prisma X" in geometry
+                    or "horizontal" in geometry):
                 M_s = M_raw[idx_max_after_min - 1]
-            if sample_g:
+            if sample_g or (major_gr and major_loop):
                 plt.scatter(np.max(H_raw), M_s, marker='d', color='g',
                             zorder=5, label=rf'$M_s$ ({M_s:.3f} [emu/g])')
-        if sample_g:
+        if sample_g or (major_gr and major_loop):
             ax1.plot(H_raw, M_raw)
             ax1.scatter([0, 0], [M_r_dec, M_r_inc], marker='d', color='r',
                         zorder=5, label=rf'$M_r$ ({M_r:.3f} [emu/g])')
@@ -135,7 +157,7 @@ def magnetizacion_archivo(q, geometry, major_loop=False):
             plt.grid()
             plt.tight_layout()
             filename = "major" if major_loop else "minor"
-            plt.savefig(f"./img/{lead_fct}/{geometry}/{filename}_{datasets[i]}_{int(df["Field"].max())}_Oe.png",
+            plt.savefig(f"./img/{lead_fct}/{geometry}/{filename}/{datasets[i]}_{int(df["Field"].max())}_Oe.png",
                             dpi=300)
             plt.close()
 
@@ -155,92 +177,121 @@ def magnetizacion_archivo(q, geometry, major_loop=False):
             "W_r_err": np.abs(W_r_err)
         })
 
-for geometry in geometrias:
-    if geometry == "Disco":
-        dict_marker = marker_dsc
-        major_head = 49
-        filename = ["minor_1er_*Hysteresis*.csv", "major_1er_*Hysteresis*.csv"]
-        datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
-        conj_med = "27_08"
-        masa = masa_dsc
-    if geometry == "Disco horizontal":
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "30g", "60g", "90g", "120g"]
-        conj_med = "17_09"
-        masa = masa_dsc
-    elif geometry == "Prisma X":
-        dict_marker = marker_pmx
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
-        conj_med = "03_09"
-        masa = masa_pmx
-    elif geometry == "Prisma X vertical":
-        dict_marker = marker_pmx
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "15g", "30g", "45g", "60g", "90g"] # "75g",
-        conj_med = "08_09"
-        masa = masa_pmx
-    datosout = []
-    for i in range(len(datasets)):                     # /{conj_med}
-        d = pathlib.Path(f"../data/mediciones/{lead_fct}/{geometry}/{datasets[i]}/")
-        for q in natsort.natsorted(d.glob(f"{filename[0]}")):
-            magnetizacion_archivo(q, geometry)
-        for q in natsort.natsorted(d.glob(f"{filename[1]}")):
-            magnetizacion_archivo(q, geometry, major_loop=True)
+for lead_fct in lead_factors:
+    if lead_fct == "Fa0":
+        colores = colores_verde
+        masa_dsc = 0.0075 # gramos
+        masa_pmx = 0.0348 # gramos
+        masa_plv = 0.0032 # gramos
+        masa_cbo = 0.0057 # gramos
+    elif lead_fct == "Fa93":
+        colores = colores_azules
+        masa_dsc = 0.0042 # gramos
+        masa_pmx = 0.0322 # gramos
+        masa_plv = 0.0032 # gramos COMPLETAR
+        masa_cbo = 0.0048 # gramos
+    elif lead_fct == "Fa186":
+        colores = colores_violeta
+        masa_dsc = 0.0046 # gramos
+        masa_pmx = 0.0297 # gramos
+        masa_plv = 0.0032 # gramos COMPLETAR
+        masa_cbo = 0.0076 # gramos
 
-    dff = pd.DataFrame(datosout)
-    dff.to_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}_{conj_med}.csv", index=False)
+    for geometry in geometrias:
+        if geometry == "Disco":
+            dict_marker = marker_dsc
+            major_head = 49 if lead_fct == "Fa0" else 85
+            if lead_fct == "Fa0":
+                filename = ["minor_1er_*Hysteresis*.csv", "major_1er_*Hysteresis*.csv"]
+            else:
+                filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
+            masa = masa_dsc
+        if geometry == "Disco horizontal":
+            major_head = 85
+            datasets = ["0g", "30g", "60g", "90g", "120g"]
+            masa = masa_dsc
+        elif geometry == "Prisma X":
+            dict_marker = marker_pmx
+            major_head = 85
+            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+            masa = masa_pmx
+        elif geometry == "Prisma X vertical":
+            dict_marker = marker_pmx
+            major_head = 85
+            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+            masa = masa_pmx
+        elif geometry == "Polvo":
+            dict_marker = marker_dsc
+            major_head = 85
+            datasets = ["30g", "90g"]
+            masa = masa_plv
+        elif geometry == "Cubo":
+            dict_marker = marker_pmx
+            major_head = 85
+            datasets = ["0g", "15g", "30g", "45g", "60g"] #, "75g"]
+            masa = masa_cbo
+        datosout = []
+        for i in range(len(datasets)):
+            d = pathlib.Path(f"../data/mediciones/{lead_fct}/{geometry}/{datasets[i]}/")
+            for q in natsort.natsorted(d.glob(f"{filename[0]}")):
+                magnetizacion_archivo(q, geometry)
+            for q in natsort.natsorted(d.glob(f"{filename[1]}")):
+                magnetizacion_archivo(q, geometry, major_loop=True)
 
-    minor_loops_df = dff[dff["Dataset"].isin(datasets)]
+        if not datosout:
+            continue
 
-    fig1, ax1 = plt.subplots(figsize=(8, 6))
-    for dataset, group in minor_loops_df.groupby("Dataset"):
-        ax1.plot(np.log(group["H_max"])/np.log(10), group["M_r"], linestyle='-',
-                     marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
-                     color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
-    ax1.set_ylabel(r"$M_r$ [emu/g]", fontsize=14)
-    ax1.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    ax1.legend(fontsize=14)
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"./img/{lead_fct}/{geometry}/M_r_segun_H_a_{geometry}_{lead_fct}_{conj_med}.png", dpi=300)
-    plt.close()
+        dff = pd.DataFrame(datosout)
+        dff.to_csv(f"./resultados/magnetizacion_{geometry}_{lead_fct}.csv", index=False)
 
-    fig2, ax2 = plt.subplots(figsize=(8, 6))
-    for dataset, group in minor_loops_df.groupby("Dataset"):
-        ax2.plot(np.log(group["H_max"])/np.log(10), group["H_c"], linestyle='-',
-                     marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
-                     color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
+        minor_loops_df = dff[dff["Dataset"].isin(datasets)]
 
-    ax2.set_ylabel(r"$H_c$ [Oe]", fontsize=14)
-    ax2.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    ax2.legend(fontsize=14)
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"./img/{lead_fct}/{geometry}/H_c_segun_H_a_{geometry}_{lead_fct}_{conj_med}.png", dpi=300)
-    plt.close()
+        fig1, ax1 = plt.subplots(figsize=(8, 6))
+        for dataset, group in minor_loops_df.groupby("Dataset"):
+            ax1.plot(np.log(group["H_max"])/np.log(10), group["M_r"], linestyle='-',
+                         marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
+                         color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
+        ax1.set_ylabel(r"$M_r$ [emu/g]", fontsize=14)
+        ax1.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        ax1.legend(fontsize=14)
+        plt.grid()
+        plt.tight_layout()
+        plt.savefig(f"./img/{lead_fct}/{geometry}/M_r_segun_H_a_{geometry}_{lead_fct}.png", dpi=300)
+        plt.close()
 
-    fig3, ax3 = plt.subplots(figsize=(8, 6))
-    for dataset, group in minor_loops_df.groupby("Dataset"):
-        ax3.plot(np.log(group["H_max"])/np.log(10), group["M_max"], linestyle='-',
-                     marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
-                     color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
+        fig2, ax2 = plt.subplots(figsize=(8, 6))
+        for dataset, group in minor_loops_df.groupby("Dataset"):
+            ax2.plot(np.log(group["H_max"])/np.log(10), group["H_c"], linestyle='-',
+                         marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
+                         color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
 
-    ax3.set_ylabel(r"$M_{max}$ [emu/g]", fontsize=14)
-    ax3.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    ax3.legend(fontsize=14)
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig(f"./img/{lead_fct}/{geometry}/M_max_segun_H_a_{geometry}_{lead_fct}_{conj_med}.png", dpi=300)
-    plt.close()
+        ax2.set_ylabel(r"$H_c$ [Oe]", fontsize=14)
+        ax2.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        ax2.legend(fontsize=14)
+        plt.grid()
+        plt.tight_layout()
+        plt.savefig(f"./img/{lead_fct}/{geometry}/H_c_segun_H_a_{geometry}_{lead_fct}.png", dpi=300)
+        plt.close()
+
+        fig3, ax3 = plt.subplots(figsize=(8, 6))
+        for dataset, group in minor_loops_df.groupby("Dataset"):
+            ax3.plot(np.log(group["H_max"])/np.log(10), group["M_max"], linestyle='-',
+                         marker=dict_marker.get(dataset), markersize=8, markeredgewidth=1.5,
+                         color=colores.get(dict_marker.get(dataset)), label=f'{dataset.replace("g", "°")}')
+
+        ax3.set_ylabel(r"$M_{max}$ [emu/g]", fontsize=14)
+        ax3.set_xlabel(r'$\log H_{max}$ [Oe]', fontsize=14)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        ax3.legend(fontsize=14)
+        plt.grid()
+        plt.tight_layout()
+        plt.savefig(f"./img/{lead_fct}/{geometry}/M_max_segun_H_a_{geometry}_{lead_fct}.png", dpi=300)
+        plt.close()
 
 # eof

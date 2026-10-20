@@ -6,7 +6,7 @@ Created on Thu Sep 10 11:43:02 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-09-20 Sunday 11:46:09 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v1.py, 2026-10-15 Thursday 14:45:22 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -21,9 +21,6 @@ import W_ext_v1
 
 # Datos
 
-masa_dsc = 0.0075 # gramos
-masa_pmx = 0.0348 # gramos
-
 densidad_acero = 7.8 #g/cm3
 
 err_mqna = 0.001  # emu
@@ -31,13 +28,13 @@ err_masa = 0.0001 # gramos
 
 # Setup variable
 
-lead_fct = "Fa0"
 sample_g = False
 graficos = True
 
 # Setup permanente
 
-geometrias = ["Prisma X", "Prisma X vertical", "Disco", "Disco horizontal"]
+lead_factors = ["Fa0", "Fa93", "Fa186"]
+geometrias = ["Prisma X", "Prisma X vertical", "Cubo", "Disco", "Disco horizontal", "Polvo"]
 colnames = ["Iteration", "Segment", "Field", "Moment", "Time Stamp", "Field Status", "Moment Status", "Invalid"]
 
 def cifras(val, err):
@@ -85,101 +82,133 @@ def ajuste_N_d_demagnetizacion(H, M, geometry, sigma, dataset):
         plt.close()
     return N_d, N_d_err
 
-for geometry in geometrias:
-    if geometry == "Disco":
-        major_head = 49
-        filename = ["minor_1er_*Hysteresis*.csv", "major_1er_*Hysteresis*.csv"]
-        datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
-        angulos  = [0, 30, 60, 90, 120, 150]
-        conj_med = "27_08"
-        masa = masa_dsc
-    if geometry == "Disco horizontal":
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "30g", "60g", "90g", "120g"]
-        angulos  = [0, 30, 60, 90, 120]
-        conj_med = "17_09"
-        masa = masa_dsc
-    elif geometry == "Prisma X":
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
-        angulos  = [0, 15, 30, 45, 60, 75, 90]
-        conj_med = "03_09"
-        masa = masa_pmx
-    elif geometry == "Prisma X vertical":
-        major_head = 85
-        filename = ["minor_*Hysteresis*", "major_*Segment*"]
-        datasets = ["0g", "15g", "30g", "45g", "60g", "90g"] # "75g",
-        angulos  = [0, 15, 30, 45, 60, 90] # 75,
-        conj_med = "08_09"
-        masa = masa_pmx
-    N_d_a = []
-    N_d_e = []
+for lead_fct in lead_factors:
+    if lead_fct == "Fa0":
+        masa_dsc = 0.0075 # gramos
+        masa_pmx = 0.0348 # gramos
+        masa_plv = 0.0032 # gramos
+        masa_cbo = 0.0057 # gramos
+    elif lead_fct == "Fa93":
+        masa_dsc = 0.0042 # gramos
+        masa_pmx = 0.0322 # gramos
+        masa_plv = 0.0032 # gramos COMPLETAR
+        masa_cbo = 0.0048 # gramos
+    elif lead_fct == "Fa186":
+        masa_dsc = 0.0046 # gramos
+        masa_pmx = 0.0297 # gramos
+        masa_plv = 0.0032 # gramos COMPLETAR
+        masa_cbo = 0.0076 # gramos
 
-    for i in range(len(datasets)):                     # /{conj_med}
-        d = pathlib.Path(f"../data/mediciones/{lead_fct}/{geometry}/{datasets[i]}/")
-        print(f"========== {geometry}: {datasets[i]} ==========")
-        for q in natsort.natsorted(d.glob(f"{filename[1]}")):
-            df = pd.read_csv(q, header=major_head, names=colnames)
-            H_raw = df["Field"].values
-            M_raw = df["Moment"].values / masa * densidad_acero
-            M_raw_err = np.sqrt(((err_mqna * densidad_acero) / masa)**2 + ((M_raw * err_masa) / masa)**2)
-            M_raw_err = np.sqrt((err_mqna**2)/masa**2 + (M_raw * err_masa**2)/masa)
-            M_raw_err[np.isnan(M_raw_err)] = 0.125
+    for geometry in geometrias:
+        if geometry == "Disco":
+            major_head = 49 if lead_fct == "Fa0" else 85
+            if lead_fct == "Fa0":
+                filename = ["minor_1er_*Hysteresis*.csv", "major_1er_*Hysteresis*.csv"]
+            else:
+                filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "30g", "60g", "90g", "120g", "150g"]
+            angulos  = [0, 30, 60, 90, 120, 150]
+            masa = masa_dsc
+        if geometry == "Disco horizontal":
+            major_head = 85
+            filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "30g", "60g", "90g", "120g"]
+            angulos  = [0, 30, 60, 90, 120]
+            masa = masa_dsc
+        elif geometry == "Prisma X":
+            major_head = 85
+            filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+            angulos  = [0, 15, 30, 45, 60, 75, 90]
+            masa = masa_pmx
+        elif geometry == "Prisma X vertical":
+            major_head = 85
+            filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+            angulos  = [0, 15, 30, 45, 60, 75, 90]
+            masa = masa_pmx
+        elif geometry == "Polvo":
+            major_head = 85
+            filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["30g", "90g"]
+            angulos  = [30, 90]
+            masa = masa_plv
+        elif geometry == "Cubo":
+            major_head = 85
+            filename = ["minor_*Hysteresis*", "major_*Segment*"]
+            datasets = ["0g", "15g", "30g", "45g", "60g"]
+            angulos  = [0, 15, 30, 45, 60]
+            masa = masa_cbo
+        N_d_a = []
+        N_d_e = []
 
-            idx_min = np.argmin(H_raw)
-            idx_max_after_min = idx_min + np.argmax(H_raw[idx_min:])
+        for i in range(len(datasets)):
+            d = pathlib.Path(f"../data/mediciones/{lead_fct}/{geometry}/{datasets[i]}/")
+            if not d.exists():
+                continue
+            print(f"========== {geometry} {lead_fct}: {datasets[i]} ==========")
+            for q in natsort.natsorted(d.glob(f"{filename[1]}")):
+                df = pd.read_csv(q, header=major_head, names=colnames)
+                H_raw = df["Field"].values
+                M_raw = df["Moment"].values / masa * densidad_acero
+                M_raw_err = np.sqrt(((err_mqna * densidad_acero) / masa)**2 + ((M_raw * err_masa) / masa)**2)
+                M_raw_err = np.sqrt((err_mqna**2)/masa**2 + (M_raw * err_masa**2)/masa)
+                M_raw_err[np.isnan(M_raw_err)] = 0.125
 
-            H_dec = H_raw[idx_max_after_min:]
-            M_dec = M_raw[idx_max_after_min:]
-            M_dec_err = M_raw_err[idx_max_after_min:]  # Fixed missing assignment
+                idx_min = np.argmin(H_raw)
+                idx_max_after_min = idx_min + np.argmax(H_raw[idx_min:])
 
-            if len(H_dec) < 5: 
-                idx_max_before_min = np.argmax(H_raw[:idx_min])
-                H_dec = H_raw[idx_max_before_min:idx_min]
-                M_dec = M_raw[idx_max_before_min:idx_min]
-                M_dec_err = M_raw_err[idx_max_before_min:idx_min]
+                H_dec = H_raw[idx_max_after_min:]
+                M_dec = M_raw[idx_max_after_min:]
+                M_dec_err = M_raw_err[idx_max_after_min:]
 
-            sat_indices = np.where(H_raw > 0.95 * np.max(H_raw))
-            _, cruce = np.polyfit(H_raw[sat_indices], M_raw[sat_indices], 1)
-            M_s = abs(cruce)
-            # ver si sobreescribirlo asi vale la pena
-            if datasets[i] != "0g" and geometry == "Disco":
-                M_s = M_raw[idx_max_after_min - 1]
+                if len(H_dec) < 5: 
+                    idx_max_before_min = np.argmax(H_raw[:idx_min])
+                    H_dec = H_raw[idx_max_before_min:idx_min]
+                    M_dec = M_raw[idx_max_before_min:idx_min]
+                    M_dec_err = M_raw_err[idx_max_before_min:idx_min]
 
-            N_d, N_d_err = ajuste_N_d_demagnetizacion(H_dec, M_dec, geometry, M_dec_err, datasets[i])
-            print(f"${datasets[i].replace('g', '^\\circ')}\\to N_d=({cifras(N_d, N_d_err)}\\pm{N_d_err:.2g})$")
-            N_d_e.append(N_d_err)
-            N_d_a.append(N_d)
+                sat_indices = np.where(H_raw > 0.95 * np.max(H_raw))
+                _, cruce = np.polyfit(H_raw[sat_indices], M_raw[sat_indices], 1)
+                M_s = abs(cruce)
+                if ((datasets[i] != "0g" and "Disco" in geometry)
+                        or "Cubo" in geometry
+                        or "Prisma X" in geometry
+                        or "horizontal" in geometry):
+                    M_s = M_raw[idx_max_after_min - 1]
 
-            M_pos, H_pos = M_dec[H_dec > 0], H_dec[H_dec > 0]
-            target_lambdas = [0.01, 0.03, 0.06, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-            cut_idx = [np.abs(M_pos/M_s - target).argmin() for target in target_lambdas]
-            H_cut, M_cut = H_pos[cut_idx], M_pos[cut_idx]
+                N_d, N_d_err = ajuste_N_d_demagnetizacion(H_dec, M_dec, geometry, M_dec_err, datasets[i])
+                print(f"${datasets[i].replace('g', '^\\circ')}\\to N_d=({cifras(N_d, N_d_err)}\\pm{N_d_err:.2g})$")
+                N_d_e.append(N_d_err)
+                N_d_a.append(N_d)
 
-            W_e_a = []
-            W_i_a = []
-            for j, M in enumerate(M_cut):
-                W_ext = W_ext_v1.calcular(H_cut[j], M, M_s, N_d)
-                W_in  = W_ext_v1.W_ext_integral(H_cut[j], M, M_s, N_d)
-                W_e_a.append(W_ext)
-                W_i_a.append(W_in)
-            if graficos:
-                plt.errorbar(M_cut/M_s, W_e_a, marker="v", mfc='black', mec='black',
-                                 color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)
-                plt.title(fr"{geometry} ${datasets[i].replace('g', '^\\circ')}$")
-                plt.xlabel(r"$\lambda$", fontsize=14)
-                plt.ylabel(r'$W_{ext}$ [erg/cm$^3$]', fontsize=14)
-                plt.show()
-                plt.close()
+                M_pos, H_pos = M_dec[H_dec > 0], H_dec[H_dec > 0]
+                target_lambdas = [0.01, 0.03, 0.06, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                cut_idx = [np.abs(M_pos/M_s - target).argmin() for target in target_lambdas]
+                H_cut, M_cut = H_pos[cut_idx], M_pos[cut_idx]
 
-    plt.errorbar(angulos, N_d_a, yerr=N_d_e, marker="v", mfc='black', mec='black',
-                 color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)
-    plt.title(geometry)
-    plt.xlabel(r"Ángulo [°]", fontsize=14)
-    plt.ylabel(r'$N_d$', fontsize=14)
-    plt.show()
-    plt.close()
+                W_e_a = []
+                W_i_a = []
+                for j, M in enumerate(M_cut):
+                    W_ext = W_ext_v1.calcular(H_cut[j], M, M_s, N_d)
+                    W_in  = W_ext_v1.W_ext_integral(H_cut[j], M, M_s, N_d)
+                    W_e_a.append(W_ext)
+                    W_i_a.append(W_in)
+                if graficos:
+                    plt.errorbar(M_cut/M_s, W_e_a, marker="v", mfc='black', mec='black',
+                                     color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)
+                    #plt.title(fr"{geometry} ${datasets[i].replace('g', '^\\circ')}$")
+                    plt.xlabel(r"$\lambda$", fontsize=14)
+                    plt.ylabel(r'$W_{ext}$ [erg/cm$^3$]', fontsize=14)
+                    plt.savefig(f"./img/{lead_fct}/{geometry}/W_ext_lambda_{datasets[i]}_{geometry}.png", dpi=300)
+                    plt.close()
+
+        if len(angulos) == len(N_d_a):
+            plt.errorbar(angulos, N_d_a, yerr=N_d_e, marker="v", mfc='black', mec='black',
+                         color="steelblue", linestyle="--", ecolor="red", capsize=4, elinewidth=1.5)
+            plt.xlabel(r"Ángulo [°]", fontsize=14)
+            plt.ylabel(r'$N_d$', fontsize=14)
+            plt.savefig(f"./img/{lead_fct}/{geometry}/N_d_angulo_major_{geometry}.png", dpi=300)
+            plt.close()
 
 # eof
