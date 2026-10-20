@@ -22,6 +22,7 @@
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{siunitx}
+\usepackage{subfiles}
 
 \geometry{left=15mm, right=15mm, top=16mm, bottom=18mm}
 \DeclareMathSizes{12}{16}{12}{10}
@@ -60,18 +61,40 @@
 
 \section{Introducción}
 \subsection{Nucleación}
-Proceso mediante el cuál se forman defectos en el material debido a la irradiación recibida. Ocurre primero sobre las aglomeraciones de cobre, y tiende formar cúmulos de mayor tamaño a su alrededor. Luego, ocurre sobre las de manganeso. El proceso físico que lleva estos defectos a tomar mayor relevancia frente a los naturales se debe al decaimiento $\beta^+$, en este caso causando que los átomos de hierro se conviertan en átomos de manganeso, aunque también hay una gran prevalencia de conversión atómica por captura electrónica \cite{enwiki:isotopes_of_iron, takahashi2004}.
+Proceso mediante el cuál se forman defectos en el material debido a la irradiación recibida. Ocurre primero sobre las aglomeraciones de cobre, y tiende formar cúmulos de mayor tamaño a su alrededor. Luego, ocurre sobre las de manganeso. El proceso físico que lleva estos defectos a tomar mayor relevancia frente a los naturales se debe a que pasado cierto radio crítico, los defectos de nucleación se vuelven estables y se genera una tendencia entre los átomos cercanos a acomodarse dentro de esta estructura. La formación de manganeso por sobre la concentración inicial suele ocurrir debido a expulsión por colisión de un protón del algún núcleo de Fe.
+\subsection{Geometría}
+La forma de una pieza determina su coeficiente de desmagnetización geométrico, $N_g$. Este es dependiente de la orientación utilizada en las mediciones ya que depende del ángulo entre las caras de la pieza y el campo aplicado.
 
-\subsection{}
-
+\subsection{Desmagnetización}
+Ocurre debido a dos factores principales; defectos y la geometría de la pieza. En el caso del primero, para lograr cuantificarlo resulta necesario calcular el factor geométrico teóricamente para así luego compararlo con el obtenido experimentalmente. Entendiendo al recíproco de la diferencia entre estos factores como la susceptibilidad interna del material, se puede cuantificar qué tanto campo magnético aplicado se pierde debido a los defectos en el mismo.
 
 \section{Minor loops, paredes de dominio}
 
 La posibilidad de medir la magnetización 
 
+\section{Resultados y análisis}
+%
+%    width=0.5\textwidth
+%
+Se evaluó el impacto de la geometría intrínseca y de la orientación angular en las propiedades magnéticas de cada muestra.
+
+\subfile{subsections/cubo_sub}
+
+\subfile{subsections/disco_sub}
+
+\subfile{subsections/disco_horizontal_sub}
+
+\subfile{subsections/polvo_sub}
+
+\subfile{subsections/prisma_sub}
+
+\subfile{subsections/prisma_vertical_sub}
+
+\subsection{Conclusiones}
+
 \section{Lake Shore VSM}
 \begin{itemize}
-\item $m_s$ momento de saturación: A partir de valores del campo entre los cuales el moment magnético es lineal, 
+\item $m_s$ momento de saturación
 
 \item $H_{ci}$ coercitividad intrínseca
 
@@ -104,7 +127,7 @@ Calibración según el microscopio e ImageJ: $(0.6658\pm0.0001)~\mathrm{px}/\mat
 \subsection{Barra}
 \begin{itemize}
 \item Peso: $(0.0615\pm0.0001)~\mathrm{g}$.
-\item Largo: $(0.95\pm0.01)~\mathrm{mm}$.
+\item Largo: $(0.95\pm0.01)~\mathrm{cm}$.
 \item Lado A, cara 1: $(985.065\pm0.001)~\mathrm{\mu m}$.
 \item Lado B, cara 1 $(900.718\pm0.001)~\mathrm{\mu m}$.
 \item Medio, cara 2: $(1095.301\pm0.001)~\mathrm{\mu m}$.
