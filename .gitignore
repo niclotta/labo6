@@ -10,3 +10,4 @@ latex/*.log
 img/*
 resultados/*
 __pycache__/*
+latex/subsections/
