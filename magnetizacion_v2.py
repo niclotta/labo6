@@ -6,6 +6,8 @@ Created on Mon Aug 24 22:43:47 2026
 @author: nclotta
 """
 
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v2.py, 2026-10-27 Tuesday 21:48:20 nclotta>
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy  as np

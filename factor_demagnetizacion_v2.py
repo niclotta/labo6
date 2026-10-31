@@ -6,6 +6,8 @@ Created on Thu Sep 10 11:43:02 2026
 @author: nclotta
 """
 
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v2.py, 2026-10-27 Tuesday 21:47:55 nclotta>
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy  as np
@@ -49,15 +51,13 @@ masas = {
     "Fa186": {"dsc": 0.0048, "pmx": 0.0297, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
 }
 
-
+# gramos
 masas = {
     "Fa0":   {"dsc": 0.0073, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
     "Fa93":  {"dsc": 0.0046, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
     "Fa186": {"dsc": 0.0050, "pmx": 0.0406, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
 }
 
-
-# Paletas de magnetizacion: un color por lead factor (el tono "P", el mismo de su leyenda)
 colores_verde = {
     "^": "#4dcb77",
     "d": "#37bd63",
@@ -86,7 +86,6 @@ colores_violeta = {
     "h": "#3b0764",
 }
 
-# Estilo de cada lead factor en los graficos superpuestos
 estilo_lf = {
     "Fa0":   {"color": colores_verde["P"],   "marker": "v"},
     "Fa93":  {"color": colores_azules["P"],  "marker": "s"},
@@ -105,7 +104,6 @@ def cifras(val, err):
     return f"{val:.{decimals}f}"
 
 def configurar(geometry, lead_fct):
-    """Devuelve (major_head, filename, datasets, angulos, masa) de una geometria y lead factor."""
     mas = masas[lead_fct]
     if geometry == "Disco":
         major_head = 49 if lead_fct == "Fa0" else 85
