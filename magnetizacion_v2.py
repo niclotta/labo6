@@ -6,7 +6,7 @@ Created on Mon Aug 24 22:43:47 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v2.py, 2026-10-27 Tuesday 21:48:20 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/magnetizacion_v2.py, 2026-11-05 Thursday 10:01:27 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -86,21 +86,9 @@ colores_lf = {
 
 # gramos
 masas = {
-    "Fa0":   {"dsc": 0.0075, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0042, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0046, "pmx": 0.0297, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
-}
-
-masas = {
     "Fa0":   {"dsc": 0.0073, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0046, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0048, "pmx": 0.0297, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
-}
-
-masas = {
-    "Fa0":   {"dsc": 0.0073, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0046, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0050, "pmx": 0.0406, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
+    "Fa93":  {"dsc": 0.0046, "pmx": 0.0325, "plv": 0.0033, "cbo": 0.0050},
+    "Fa186": {"dsc": 0.0050, "pmx": 0.0406, "plv": 0.0057, "cbo": 0.0078},
 }
 
 def etiqueta_lf(lead_fct):
@@ -130,6 +118,8 @@ def configurar(geometry, lead_fct):
         dict_marker = marker_pmx
         major_head = 85
         datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
+        if lead_fct == "Fa186":
+            datasets = ["0g", "30g", "45g", "60g", "75g", "90g", "120g", "150g"]
         masa = mas["pmx"]
     elif geometry == "Polvo":
         dict_marker = marker_dsc

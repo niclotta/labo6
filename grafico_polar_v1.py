@@ -15,6 +15,8 @@ import numpy  as np
 import pathlib
 import natsort
 
+from configuracion import angulos_reales
+
 marker_dsc = {
     "0g":   "^",
     "30g":  "d",
@@ -143,7 +145,9 @@ for lead_fct in ["Fa93", "Fa186"]:
 
     M_s_arr = np.array(M_s_arr)
     M_s_err = np.array(M_s_err)
-    resultados_polar[lead_fct] = (angulos, M_s_arr, M_s_err)
+    angulos_corr = angulos_reales("Disco", lead_fct, angulos)
+    tita = np.radians(angulos_corr)
+    resultados_polar[lead_fct] = (angulos_corr, M_s_arr, M_s_err)
     tita_cerrado = np.append(tita, tita[0])
     M_s_cerrado  = np.append(M_s_arr, M_s_arr[0])
     M_e_cerrado  = np.append(M_s_err, M_s_err[0])

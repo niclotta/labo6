@@ -6,7 +6,7 @@ Created on Thu Sep 10 11:43:02 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v2.py, 2026-10-27 Tuesday 21:47:55 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/factor_demagnetizacion_v2.py, 2026-11-05 Thursday 10:02:32 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -39,23 +39,9 @@ colnames = ["Iteration", "Segment", "Field", "Moment", "Time Stamp", "Field Stat
 
 # gramos
 masas = {
-    "Fa0":   {"dsc": 0.0075, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0042, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0046, "pmx": 0.0297, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
-}
-
-# gramos
-masas = {
     "Fa0":   {"dsc": 0.0073, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0046, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0048, "pmx": 0.0297, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
-}
-
-# gramos
-masas = {
-    "Fa0":   {"dsc": 0.0073, "pmx": 0.0348, "plv": 0.0032, "cbo": 0.0057},
-    "Fa93":  {"dsc": 0.0046, "pmx": 0.0322, "plv": 0.0032, "cbo": 0.0048},  # plv: COMPLETAR
-    "Fa186": {"dsc": 0.0050, "pmx": 0.0406, "plv": 0.0032, "cbo": 0.0076},  # plv: COMPLETAR
+    "Fa93":  {"dsc": 0.0046, "pmx": 0.0325, "plv": 0.0033, "cbo": 0.0050},
+    "Fa186": {"dsc": 0.0050, "pmx": 0.0406, "plv": 0.0057, "cbo": 0.0078},
 }
 
 colores_verde = {
@@ -131,6 +117,9 @@ def configurar(geometry, lead_fct):
         filename = ["minor_*Hysteresis*", "major_*Segment*"]
         datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
         angulos  = [0, 15, 30, 45, 60, 75, 90]
+        if lead_fct == "Fa186":
+            datasets = ["0g", "30g", "45g", "60g", "75g", "90g", "120g", "150g"]
+            angulos  = [0, 30, 45, 60, 75, 90, 120, 150]
         masa = mas["pmx"]
     elif geometry == "Polvo":
         major_head = 85

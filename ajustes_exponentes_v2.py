@@ -6,7 +6,7 @@ Created on Tue Aug 25 14:02:44 2026
 @author: nclotta
 """
 
-# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v1.py, 2026-10-15 Thursday 14:44:27 nclotta>
+# Time-stamp: </Users/nclotta/Documents/__UBA/__LABO_6_SEIS/codigo/ajustes_exponentes_v2.py, 2026-11-05 Thursday 10:02:05 nclotta>
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -249,6 +249,9 @@ if __name__ == "__main__":
             elif geometry == "Prisma X vertical":
                 datasets = ["0g", "15g", "30g", "45g", "60g", "75g", "90g"]
                 angulos  = [0, 15, 30, 45, 60, 75, 90]
+                if lead_fct == "Fa186":
+                    datasets = ["0g", "30g", "45g", "60g", "75g", "90g", "120g", "150g"]
+                    angulos  = [0, 30, 45, 60, 75, 90, 120, 150]
                 dict_recorte = recorte_pmV
             elif geometry == "Polvo":
                 datasets = ["30g", "90g"]

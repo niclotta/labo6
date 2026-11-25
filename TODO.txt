@@ -1,0 +1,12 @@
+============= TODO ===============
++ v2 mas prolijo?
++ imageJ fotos nuevas
++ factor desmagnetizacion teorico
++ desmagnetizacion relativa?
++ analisis de todos los majors del disco Fa93, Fa186
++ N_d de todos los majors para el Disco Fa93, Fa186
++ todos los ajustes para todos los majors discos 93, 186
++ poster!
++ graficos de W^0, H_c^0 segun el LF para cada geom
+
+creo que conviene tirar el codigo que los hace en grafico_polar_v1.py y juntarlo todo ahi total que da
